@@ -1,6 +1,8 @@
-import { createMultiProxy, toRecord } from 'utikity';
 import {
-  entityEncode,
+  createMultiProxy,
+  toRecord,
+} from 'utikity';
+import {
   extractAttributesAndContent,
   formatAttribute,
   identity,
@@ -38,7 +40,7 @@ export function wrapValues<T extends object>(values: T, classNames?: string[], i
 
 function createClassTagFunction(tag: string): TagFunction {
   return function classTagFuction(chunks: string[]) {
-    return `<span class="${ tag }">${ entityEncode(chunks.join('')) }</span>`;
+    return `<span class="${ tag }">${ chunks.join('') }</span>`;
   };
 }
 
@@ -87,7 +89,7 @@ function createElementTagFunction(tag: string, defaultAttributes?: Record<string
         }
       );
     }
-    return `<${ tag }${ attributes }>${ entityEncode(content) }</${ tag }>`;
+    return `<${ tag }${ attributes }>${ content }</${ tag }>`;
   };
 }
 
