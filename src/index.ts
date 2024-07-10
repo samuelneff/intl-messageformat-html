@@ -4,21 +4,23 @@ import {
   extractAttributesAndContent,
   formatAttribute,
   identity,
-} from './internal.js';
+} from './internal';
 import {
   elementDefaultAttributes,
   htmlAttributes,
   htmlElements,
   svgAttributes,
   svgElements,
-} from './constants.js';
+} from './constants';
+
+export type TagFunction = (chunks: string[]) => string;
 
 const htmlElementTagFunctions = createElementTagFunctions(htmlElements);
 const htmlAttributeTagFunctions = createAttributeTagFunctions(htmlAttributes);
 const svgElementTagFunctions = createElementTagFunctions(svgElements);
 const svgAttributTagFunctions = createAttributeTagFunctions(svgAttributes);
 
-export const tagFunctions = {
+export const tagFunctions: Record<string, TagFunction> = {
   // there is some overlap but the implementations are the same so no worries about the overrides
   ...svgElementTagFunctions,
   ...svgAttributTagFunctions,
@@ -31,10 +33,10 @@ export function wrapValues<T extends object>(values: T, classNames?: string[], i
     ? createClassTagFunctions(classNames, includeDefaults)
     : tagFunctions;
 
-  return createMultiProxy(values, appliedTagFunctions) as unknown as T;
+  return createMultiProxy(values, appliedTagFunctions) as unknown as T & Record<string, TagFunction>;
 }
 
-function createClassTagFunction(tag: string) {
+function createClassTagFunction(tag: string): TagFunction {
   return function classTagFuction(chunks: string[]) {
     return `<span class="${ tag }">${ entityEncode(chunks.join('')) }</span>`;
   };
@@ -57,7 +59,7 @@ export function createClassTagFunctions(classNames: string[], includeDefaults:bo
   };
 }
 
-function createAttributeTagFunction(tag: string) {
+function createAttributeTagFunction(tag: string): TagFunction {
   return function attributeTagFunction(chunks: string[]) {
     return formatAttribute(tag, chunks.join(''));
   };
@@ -71,7 +73,7 @@ export function createAttributeTagFunctions(tags: string[]) {
   );
 }
 
-function createElementTagFunction(tag: string, defaultAttributes?: Record<string, string>) {
+function createElementTagFunction(tag: string, defaultAttributes?: Record<string, string>): TagFunction {
   return function elementTagFunction(chunks: string[]) {
     let {attributes, content} = extractAttributesAndContent(chunks.join(''));
 
@@ -85,7 +87,7 @@ function createElementTagFunction(tag: string, defaultAttributes?: Record<string
         }
       );
     }
-    return `<${ tag }${ attributes }>${ entityEncode(content) }</${ tag }`;
+    return `<${ tag }${ attributes }>${ entityEncode(content) }</${ tag }>`;
   };
 }
 
