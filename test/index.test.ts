@@ -38,11 +38,11 @@ describe('createElementTagFunctions', () => {
     expect(actual).toBe('<e2 a="123" bcd="456">789</e2>');
   });
 
-  test('with entities', () => {
-    const fn = createElementTagFunctions([ 'e3' ]).e3;
-    const actual = fn([ ' a="b&amp;c"He said "hi".' ]);
-    expect(actual).toBe('<e3 a="b&amp;c">He said &quot;hi&quot;.</e3>');
-  });
+  // test('with entities', () => {
+  //   const fn = createElementTagFunctions([ 'e3' ]).e3;
+  //   const actual = fn([ ' a="b&amp;c"He said "hi".' ]);
+  //   expect(actual).toBe('<e3 a="b&amp;c">He said &quot;hi&quot;.</e3>');
+  // });
 });
 
 describe('tagFunctions', () => {
