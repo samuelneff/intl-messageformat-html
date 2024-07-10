@@ -1,4 +1,4 @@
-import { entityEncode, extractEmbeddedTags } from '../src/internal';
+import { entityEncode, extractAttributesAndContent, ExtractedAttributes, extractEmbeddedTags } from '../src/internal';
 
 describe('entityEncode', () => {
 
@@ -57,6 +57,36 @@ describe('extractEmbeddedTags', () => {
     );
     const expected = {
       text: '<a><b>c</c></a>',
+    };
+    expect(actual).toEqual(expected);
+  });
+});
+
+describe('extractAttributesAndContent', () => {
+
+  test('No attributes', () => {
+    const actual = extractAttributesAndContent('test');
+    const expected: ExtractedAttributes = {
+      attributes: '',
+      content: 'test',
+    };
+    expect(actual).toEqual(expected);
+  });
+
+  test('One attribute', () => {
+    const actual = extractAttributesAndContent(' attr="value here"test');
+    const expected: ExtractedAttributes = {
+      attributes: ' attr="value here"',
+      content: 'test',
+    };
+    expect(actual).toEqual(expected);
+  });
+
+  test('Multiple attributes', () => {
+    const actual = extractAttributesAndContent(' a1="abc" a2="def"test');
+    const expected: ExtractedAttributes = {
+      attributes: ' a1="abc" a2="def"',
+      content: 'test',
     };
     expect(actual).toEqual(expected);
   });
