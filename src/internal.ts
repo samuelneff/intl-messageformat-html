@@ -1,4 +1,4 @@
-const tagExtractorPattern = /<(\w+)>([^<]+)<\/\1>/g;
+const tagExtractorPattern = /<([\w-]+)>([^<]+)<\/\1>/g;
 const entityMap = {
   '&': '&amp;',
   '<': '&lt;',

@@ -27,6 +27,19 @@ describe('extractEmbeddedTags', () => {
     expect(actual).toEqual(expected);
   });
 
+  test('Dashes', () => {
+    const actual = extractEmbeddedTags(
+      '<href>https://cnn.com</href><aria-label>Navigate to CNN.com</aria-label>See the latest news on CNN'
+    );
+    const expected = {
+      href: 'https://cnn.com',
+      'aria-label': 'Navigate to CNN.com',
+      text: 'See the latest news on CNN',
+    };
+    expect(actual).toEqual(expected);
+  });
+
+
   test('Only innermost tags', () => {
     const actual = extractEmbeddedTags(
       '<a><b>B</b>c</a>'
