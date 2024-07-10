@@ -1,4 +1,9 @@
-import { entityEncode, extractAttributesAndContent, ExtractedAttributes, extractEmbeddedTags } from '../src/internal';
+import {
+  entityEncode,
+  extractAttributesAndContent,
+  ExtractedAttributes,
+  extractEmbeddedTags
+} from '../src/internal.js';
 
 describe('entityEncode', () => {
 

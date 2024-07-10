@@ -1,5 +1,5 @@
 import { IntlMessageFormat } from 'intl-messageformat';
-import { wrapValues } from '../src';
+import { wrapValues } from '../src/index.js';
 
 const interpolationValues = {
   firstName: 'John',
