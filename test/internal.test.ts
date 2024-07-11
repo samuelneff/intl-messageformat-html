@@ -3,7 +3,7 @@ import {
   extractAttributesAndContent,
   ExtractedAttributes,
   extractEmbeddedTags
-} from '../src/internal.js';
+} from '../src/internal.ts';
 
 describe('entityEncode', () => {
 

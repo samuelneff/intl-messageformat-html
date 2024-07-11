@@ -21,14 +21,9 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
-
-    "paths": {
-      "intl-messageformat-html": [ "./dist" ]
-    }
+    "noFallthroughCasesInSwitch": true
   },
   "include": [
-    "./src/*.ts",
-    "./test/*.ts"
-  ],
+    "./src/*.ts"
+  ]
 }

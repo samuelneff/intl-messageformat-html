@@ -4,7 +4,7 @@ import {
   createElementTagFunctions,
   tagFunctions,
   wrapValues,
- } from '../src/index.js';
+ } from '../src/index.ts';
 
 describe('createAttributeTagFunctions', () => {
 
