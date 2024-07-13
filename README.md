@@ -2,7 +2,11 @@
 
 HTML tag functions for use with [intl-messageformat](https://www.npmjs.com/package/intl-messageformat) ([docs](https://formatjs.io/docs/intl-messageformat)). Almost all html elements and attributes are supported, although only a minimal set are recommended. Custom tag functions can also be easily integrated to use CSS to style your localized text.
 
-# installation
+```html
+Hi {name}! Welcome to <strong>intl-messageformat-html</strong>.
+```
+
+# Installation
 
 ```bash
 npm i intl-messageformat-html
@@ -182,5 +186,84 @@ Resulting string:
 
 Note that the namespace is added automatically to the `<svg>` element, if not otherwise specified.
 
+# Performance
 
+Localized strings can often be generated a hundred or more times in a single frame. Performance is critical in processing these strings and `intl-messageformat-html` has important characteristics to not degrade performance of localization.
 
+### Constant `tagFunctions`
+
+The `tagFunctions` constant itself is of course a constant. It's generated once at the start of the application and never needs to change, regardless of usage or locale. Whenever you do not need your own interpolated values or custom CSS classes, passing `tagFunctions` will yield the best results.
+
+```js
+import { IntlMessageFormat } from 'intl-messageformat';
+import { tagFunctions } from 'intl-messageformat-html';
+
+const message = 'Welcome to <strong>intl-messageformat-html</strong>!';
+const html = new IntlMessageFormat(message, 'en').format(tagFunctions);
+```
+
+### Multiproxy from `utikity`
+
+When you do need your own interpolated values it's critical to use the `wrapValues` helper and not spread across your values and `tagFunctions`. The spread operator is the most common and generally recommended way to combine objects, but in this specific use case it is not optimal. Since your message will use only a small fraction of values from the tag functions, using spread to create a combined object will perform a lot more work than cherry-picking only the used functions.
+
+Performance of `wrapValues` is achieved through use of a Multiproxy from [utikity](https://www.npmjs.com/package/utikity). Instead of creating a new object with the properties of your interpolated values and the tag functions, the Multiproxy is a proxy that will first return any requested value from your interpolated values and, if not found, then will return the value from the tag functions.
+
+The code behind `wrapValues` is essentially like this (but has other performance optimizations too):
+
+```js
+import { IntlMessageFormat } from 'intl-messageformat';
+import { tagFunctions } from 'intl-messageformat-html';
+import { createMultiproxy } from 'utikity';
+
+const values = {
+  name: 'John',
+};
+
+// Don't do this, it's just a demonstration
+const combinedTags = createMultiproxy(values, tagFunctions);
+
+const message = 'Hi {name}! Welcome to <strong>intl-messageformat-html</strong>.';
+const html = new IntlMessageFormat(message, 'en').format(combinedTags);
+```
+
+### Caching in `wrapValues` and `createClassTagFunctions`
+
+It's also extremely common to call `wrapValues` and `createClassTagFunctions` repeatedly with the same set of values and classes. This is particularly true in React where components are rendered with the same inputs to identify if the resulting content actually changed. Therefor both `wrapValues` and `createClassTagFunctions` will cache the resulting multiproxy and custom tag functions object based on the input values and class list.
+
+The pseudo-code representing this caching is essentially this:
+
+```js
+const cache = new Map();
+
+function createClassTagFunctions(classes) {
+  if (cache.has(classes)) {
+    return cache.get(classes);
+  }
+  const customTagFunctions = realCreateClassTagFunctions(classes);
+  cache.set(classes, customTagFunctions);
+  return customTagFunctions;
+}
+
+function wrapValues(values) {
+  if (cache.has(values)) {
+    return cache.get(values);
+  }
+  const multiproxy = createMultiproxy(values, tagFunctions);
+  cache.set(classes, multiproxy);
+  return multiproxy;
+}
+```
+
+The cache doesn't actually store all values forever though. It will store approximately up to the cache size (default 100) and then purge the cache if the cache size is reached. The cache size is approximate because purging happens on the next frame so within a single frame, the cache size can be exceeded. When purged, the cache is reduced to at most 60% of the cache size depending on how long items have been in the cache and how often they've been used.
+
+The cache size can be overridden and caching can be disabled entirely by setting the cache size to zero.
+
+```js
+import { setTagFunctionCacheSize } from 'intl-messageformat-html';
+
+// to cache more
+setTagFunctionCacheSize(1000);
+
+// to not cache at all
+setTagFunctionCacheSize(0);
+```

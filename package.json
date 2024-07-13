@@ -1,6 +1,6 @@
 {
   "name": "intl-messageformat-html",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "HTML tag functions for use with intl-messageformat",
   "main": "dist/index.js",
   "type": "module",

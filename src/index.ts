@@ -6,14 +6,14 @@ import {
   extractAttributesAndContent,
   formatAttribute,
   identity,
-} from './internal.ts';
+} from './internal.js';
 import {
   elementDefaultAttributes,
   htmlAttributes,
   htmlElements,
   svgAttributes,
   svgElements,
-} from './constants.ts';
+} from './constants.js';
 
 export type TagFunction = (chunks: string[]) => string;
 

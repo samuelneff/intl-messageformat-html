@@ -7,7 +7,7 @@
     "moduleResolution": "NodeNext",
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "allowImportingTsExtensions": true,
+    "allowImportingTsExtensions": false,
 
     /* build */
     "outDir": "./dist/",
@@ -15,7 +15,7 @@
     "declaration": true,
 
     "resolveJsonModule": true,
-    "noEmit": true,
+    "noEmit": false,
 
     /* Linting */
     "strict": true,
