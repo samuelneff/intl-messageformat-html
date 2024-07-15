@@ -1,34 +1,29 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "useDefineForClassFields": true,
-    "lib": ["ES2022"],
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "skipLibCheck": true,
+    "module": "CommonJS",
+    "moduleResolution": "Node10",
+    "target": "es2022",
+    "verbatimModuleSyntax": false,
+    "lib": ["ES2023", "DOM"],
     "esModuleInterop": true,
-    "allowImportingTsExtensions": true,
-
-    /* build */
-    "outDir": "./dist/",
-    "sourceMap": true,
+    "outDir": "dist",
     "declaration": true,
-
+    "sourceMap": true,
+    "declarationMap": true,
+    "skipLibCheck": true,
+    "useDefineForClassFields": true,
+    "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
-    "noEmit": true,
+    "isolatedModules": true,
+    "noEmit": false,
 
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
-
-    "paths": {
-      "intl-messageformat-html": [ "./dist" ]
-    }
+    "noFallthroughCasesInSwitch": true
   },
   "include": [
-    "./src/*.ts",
-    "./test/*.ts"
-  ],
+    "src"
+  ]
 }
