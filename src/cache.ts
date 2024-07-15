@@ -9,7 +9,8 @@ interface CachedFunctions {
 let cacheSize = 100;
 const wrapCache = new Map<object, CachedFunctions>();
 const classesCache = new Map<string[], CachedFunctions>();
-const pendingTimeouts = [] as NodeJS.Timeout[];
+
+const pendingTimeouts: Map<object, NodeJS.Timeout> = new Map();
 
 export function setTagFunctionCacheSize(newCacheSize: number) {
   cacheSize = newCacheSize;
@@ -63,11 +64,13 @@ function getOrPutCache<T>(key: T, cache: Map<T, CachedFunctions>, creator: () =>
 }
 
 export function maybeScheduleCacheReduction<T>(cache: Map<T, CachedFunctions>) {
-  if (cache.size <= cacheSize) {
+  if (cache.size <= cacheSize || pendingTimeouts.has(cache)) {
     return;
   }
-
-  pendingTimeouts.push(setTimeout(() => reduceCache(cache)));
+  pendingTimeouts.set(
+    cache,
+    setTimeout(() => reduceCache(cache)),
+  );
 }
 
 /**
@@ -75,7 +78,11 @@ export function maybeScheduleCacheReduction<T>(cache: Map<T, CachedFunctions>) {
  */
 export function reduceCache<T>(cache: Map<T, CachedFunctions>) {
 
-  clearTimeouts();
+  const timeout = pendingTimeouts.get(cache);
+  if (timeout) {
+    clearTimeout(timeout);
+  }
+  pendingTimeouts.delete(cache);
 
   if (cacheSize === 0) {
     cache.clear();
@@ -86,19 +93,21 @@ export function reduceCache<T>(cache: Map<T, CachedFunctions>) {
     return;
   }
 
+  const targetCacheSize = Math.floor(cacheSize * 0.6);
+
   const entries = [ ...cache.entries() ]
     .filter(
       ([_, cachedFunctions]) => cachedFunctions.usedCount > 1
   );
 
-  if (entries.length > cacheSize) {
+  if (entries.length > targetCacheSize) {
     entries.sort(
       ([ , x ], [ , y ]) => y.lastUsed - x.lastUsed
     );
-    entries.length = Math.floor(cacheSize * 0.6);
+    entries.length = targetCacheSize;
   }
 
-  cache.clear()
+  cache.clear();
   entries.forEach(
     ([ key, cacheFunctions ]) => {
       cache.set(key, cacheFunctions);
@@ -110,7 +119,7 @@ function clearTimeouts() {
   pendingTimeouts.forEach(
     timeout => clearTimeout(timeout)
   );
-  pendingTimeouts.length = 0;
+  pendingTimeouts.clear();
 }
 
 /**
