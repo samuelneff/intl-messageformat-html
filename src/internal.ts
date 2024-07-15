@@ -1,4 +1,7 @@
 
+export type TagFunction = (chunks: string[]) => string;
+export type TagFunctions = Record<string, TagFunction>;
+
 export interface ExtractedAttributes {
   attributes: string;
   content: string;

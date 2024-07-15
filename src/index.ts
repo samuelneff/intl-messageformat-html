@@ -6,6 +6,8 @@ import {
   extractAttributesAndContent,
   formatAttribute,
   identity,
+  TagFunction,
+  TagFunctions,
 } from './internal';
 import {
   elementDefaultAttributes,
@@ -15,14 +17,14 @@ import {
   svgElements,
 } from './constants';
 
-export type TagFunction = (chunks: string[]) => string;
+export type { TagFunction } from './internal';
 
 const htmlElementTagFunctions = createElementTagFunctions(htmlElements);
 const htmlAttributeTagFunctions = createAttributeTagFunctions(htmlAttributes);
 const svgElementTagFunctions = createElementTagFunctions(svgElements);
 const svgAttributTagFunctions = createAttributeTagFunctions(svgAttributes);
 
-export const tagFunctions: Record<string, TagFunction> = {
+export const tagFunctions: TagFunctions = {
   // there is some overlap but the implementations are the same so no worries about the overrides
   ...svgElementTagFunctions,
   ...svgAttributTagFunctions,
@@ -35,7 +37,7 @@ export function wrapValues<T extends object>(values: T, classNames?: string[], i
     ? createClassTagFunctions(classNames, includeDefaults)
     : tagFunctions;
 
-  return createMultiProxy(values, appliedTagFunctions) as unknown as T & Record<string, TagFunction>;
+  return createMultiProxy(values, appliedTagFunctions) as unknown as T & TagFunctions;
 }
 
 function createClassTagFunction(tag: string): TagFunction {
