@@ -1,3 +1,4 @@
+import { clearBothCaches } from '../src/cache';
 import {
   createAttributeTagFunctions,
   createClassTagFunctions,
@@ -5,6 +6,10 @@ import {
   tagFunctions,
   wrapValues,
  } from '../src/index';
+
+beforeEach(() => {
+  clearBothCaches();
+});
 
 describe('createAttributeTagFunctions', () => {
 

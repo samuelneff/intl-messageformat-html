@@ -3,12 +3,9 @@ import {
   toRecord,
 } from 'utikity';
 import {
-  extractAttributesAndContent,
-  formatAttribute,
-  identity,
-  TagFunction,
-  TagFunctions,
-} from './internal';
+  getOrPutClassesCache,
+  getOrPutWrapCache,
+} from './cache';
 import {
   elementDefaultAttributes,
   htmlAttributes,
@@ -16,6 +13,13 @@ import {
   svgAttributes,
   svgElements,
 } from './constants';
+import {
+  extractAttributesAndContent,
+  formatAttribute,
+  identity,
+  TagFunction,
+  TagFunctions,
+} from './internal';
 
 export type { TagFunction } from './internal';
 
@@ -33,11 +37,15 @@ export const tagFunctions: TagFunctions = {
 };
 
 export function wrapValues<T extends object>(values: T, classNames?: string[], includeDefaults: boolean = true) {
-  const appliedTagFunctions = classNames
-    ? createClassTagFunctions(classNames, includeDefaults)
-    : tagFunctions;
-
-  return createMultiProxy(values, appliedTagFunctions) as unknown as T & TagFunctions;
+  const cachedTagFunctions = getOrPutWrapCache(
+    values,
+    () => (
+      classNames
+        ? createClassTagFunctions(classNames, includeDefaults)
+        : tagFunctions
+    )
+  );
+  return createMultiProxy(values, cachedTagFunctions) as unknown as T & TagFunctions;
 }
 
 function createClassTagFunction(tag: string): TagFunction {
@@ -47,20 +55,25 @@ function createClassTagFunction(tag: string): TagFunction {
 }
 
 export function createClassTagFunctions(classNames: string[], includeDefaults:boolean = true) {
-  const classTagFunctions = toRecord(
-    classNames,
-    identity,
-    createClassTagFunction
-  );
 
-  if (!includeDefaults) {
-    return classTagFunctions;
+  return getOrPutClassesCache(classNames, createClassTagFunctionsImpl);
+
+  function createClassTagFunctionsImpl() {
+    const classTagFunctions = toRecord(
+      classNames,
+      identity,
+      createClassTagFunction
+    );
+
+    if (!includeDefaults) {
+      return classTagFunctions;
+    }
+
+    return {
+      ...classTagFunctions,
+      ...tagFunctions,
+    };
   }
-
-  return {
-    ...classTagFunctions,
-    ...tagFunctions,
-  };
 }
 
 function createAttributeTagFunction(tag: string): TagFunction {
