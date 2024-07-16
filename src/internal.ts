@@ -1,4 +1,3 @@
-
 export type TagFunction = (chunks: string[]) => string;
 export type TagFunctions = Record<string, TagFunction>;
 
@@ -7,24 +6,8 @@ export interface ExtractedAttributes {
   content: string;
 }
 
-const attributeExtractPattern = /((?: [\w-]+="[^"]+")+)(.+)/
+const attributeExtractPattern = /((?: [\w-]+="[^"]+")+)(.*)/
 const tagExtractorPattern = /<([\w-]+)>([^<]+)<\/\1>/g;
-const entityMap = {
-  '&': '&amp;',
-  '<': '&lt;',
-  '>': '&gt;',
-  '"': '&quot;',
-  '\'': '&apos;',
-};
-const entitiesPattern = new RegExp(`[${ Object.keys(entityMap).join('') }]`, 'g');
-
-export function entityEncode(text: string) {
-  return text?.replace(entitiesPattern, entityEncodeChar) ?? '';
-
-  function entityEncodeChar(entity: string) {
-    return entityMap[ entity as keyof typeof entityMap ];
-  }
-}
 
 /**
  * Extracts the attributes portion of inner content and the inner text portion.
@@ -70,5 +53,5 @@ export function identity<T>(value: T): T {
  * Formats an attriute and entity-encodes the value
  */
 export function formatAttribute(name: string, value: string) {
-  return ` ${ name }="${ entityEncode(value) }"`;
+  return ` ${ name }="${ value }"`;
 }

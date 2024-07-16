@@ -1,4 +1,5 @@
 import {
+  createEntityEncodeProxy,
   createMultiProxy,
   toRecord,
 } from 'utikity';
@@ -45,7 +46,10 @@ export function wrapValues<T extends object>(values: T, classNames?: string[], i
         : tagFunctions
     )
   );
-  return createMultiProxy(values, cachedTagFunctions) as unknown as T & TagFunctions;
+  return createMultiProxy(
+    createEntityEncodeProxy(values),
+    cachedTagFunctions
+  ) as unknown as T & TagFunctions;
 }
 
 function createClassTagFunction(tag: string): TagFunction {
@@ -104,7 +108,11 @@ function createElementTagFunction(tag: string, defaultAttributes?: Record<string
         }
       );
     }
-    return `<${ tag }${ attributes }>${ content }</${ tag }>`;
+    const start = `<${ tag }${ attributes }`;
+    const end = content
+      ? `>${ content }</${ tag }>`
+      : ' />';
+    return `${ start }${ end }`;
   };
 }
 

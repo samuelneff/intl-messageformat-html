@@ -59,7 +59,7 @@ const html = new IntlMessageFormat(message, 'en').format(tagFunctions);
 Resulting string:
 
 ```html
-  Welcome to the German version (<image src="/images/flag-de.png"></image>).
+  Welcome to the German version (<image src="/images/flag-de.png" />).
 ```
 
 And when rendered as HTML:
@@ -91,6 +91,34 @@ Resulting string:
 And when rendered as HTML:
 
 > Hi John! Welcome to **intl-messageformat-html**!
+
+# Safety and entity encoding
+
+Generating dynamic HTML is dangerous since data from a user could inject malicious HTML into the document. `intl-messageformat-html` provides *partial* protection against this. Any content that comes from interpolated values is entity encoded. The messages themselves are not. The reason for this is the messages will contain tags, which must not be entity encoded, and nested tags, which are necessary for certain constructs, like lists and formatting inside links, will not render as desired if entity encoded.
+
+With this in mind, and it's almost universal anyways, the messages themselves should not be user-generated content, or if they are, they should be validated to be safe **before** sending to `intl-messageformat-html`. This also means that messages that have content that must be entity-encoded are encoded in the source messages themselves.
+
+```js
+import { IntlMessageFormat } from 'intl-messageformat';
+import { wrapValues } from 'intl-messageformat-html';
+
+const values = {
+  name: 'John & Joe',
+};
+
+const message = 'Hi {name}! Welcome to <strong>Bob &amp; Bill&apos;s Service</strong>.';
+const html = new IntlMessageFormat(message, 'en').format(wrapValues(values));
+```
+
+Resulting string:
+
+```html
+  Hi John &amp; Joe! Welcome to <strong>Bob &amp; Bill&apos;s Service</strong>.
+```
+
+Note how the first `&` inside the interpolated values is **not** encoded ihe source but is encoded in the output and
+the `&` and `'` in the message are entity-encoded **before** the message is processed. The result is that both are
+properly encoded in the output.
 
 # Links
 
@@ -156,9 +184,9 @@ Resulting string:
   Age must be specified as an <span class="value">integer</span>.
 ```
 
-And when rendered as HTML (given styling `.value { color: red; }`):
+And when rendered as HTML (given styling `.value { text-transform: uppercase; }`):
 
-> Age must be specified as an <span style="color:red">integer</span>.
+> Age must be specified as an INTEGER.
 
 # SVG Elements
 
