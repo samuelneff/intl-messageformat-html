@@ -73,10 +73,10 @@ export function createClassTagFunctions(classNames: string[], includeDefaults:bo
       return classTagFunctions;
     }
 
-    return {
-      ...classTagFunctions,
-      ...tagFunctions,
-    };
+    return createMultiProxy(
+      classTagFunctions,
+      tagFunctions
+    );
   }
 }
 
