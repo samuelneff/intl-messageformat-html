@@ -6,7 +6,7 @@ export interface ExtractedAttributes {
   content: string;
 }
 
-const attributeExtractPattern = /((?: [\w-]+="[^"]+")+)(.*)/
+const attributeExtractPattern = /^((?: [\w-]+="[^"]+")+)((?:\n|.)*)/
 const tagExtractorPattern = /<([\w-]+)>([^<]+)<\/\1>/g;
 
 /**
