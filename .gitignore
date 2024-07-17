@@ -1,3 +1,6 @@
+# generated tests from README.md
+test/tmp-readme-code/*.ts
+
 # Logs
 logs
 *.log

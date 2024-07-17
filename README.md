@@ -85,7 +85,7 @@ const html = new IntlMessageFormat(message, 'en').format(wrapValues(values));
 Resulting string:
 
 ```html
-  Hi John! Welcome to <strong>intl-messageformat-html</strong>!
+  Hi John! Welcome to <strong>intl-messageformat-html</strong>.
 ```
 
 And when rendered as HTML:
@@ -197,18 +197,18 @@ import { IntlMessageFormat } from 'intl-messageformat';
 import { tagFunctions } from 'intl-messageformat-html';
 
 const message = `
-  Click on the red (<svg><width>16<width/><height>16</height>
-    <rect><width>16<width/><height>16</height><style>fill:red;</style></rect>
+  Click on the red (<svg><width>16</width><height>16</height>
+    <rect><width>16</width><height>16</height><style>fill:red;</style></rect>
   </svg>) box.
 `;
-const html = new IntlMessageFormat(message, 'en').format(wrapValues(tagFunctions, classes));
+const html = new IntlMessageFormat(message, 'en').format(tagFunctions);
 ```
 
 Resulting string:
 
 ```html
   Click on the red (<svg width="16" height="16" xmlns="http://www.w3.org/2000/svg">
-    <rect width="16" height="16" style="fill:red;"></rect>
+    <rect width="16" height="16" style="fill:red;" />
   </svg>) box.
 ```
 
