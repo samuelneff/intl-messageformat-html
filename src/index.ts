@@ -1,12 +1,9 @@
 import {
   createEntityEncodeProxy,
   createMultiProxy,
+  MapCache,
   toRecord,
 } from 'utikity';
-import {
-  getOrPutClassesCache,
-  getOrPutWrapCache,
-} from './cache';
 import {
   elementDefaultAttributes,
   htmlAttributes,
@@ -29,6 +26,9 @@ const htmlAttributeTagFunctions = createAttributeTagFunctions(htmlAttributes);
 const svgElementTagFunctions = createElementTagFunctions(svgElements);
 const svgAttributTagFunctions = createAttributeTagFunctions(svgAttributes);
 
+const classesCache = new MapCache<string[], TagFunctions>();
+const wrapCache = new MapCache<object, TagFunctions>();
+
 export const tagFunctions: TagFunctions = {
   // there is some overlap but the implementations are the same so no worries about the overrides
   ...svgElementTagFunctions,
@@ -38,7 +38,7 @@ export const tagFunctions: TagFunctions = {
 };
 
 export function wrapValues<T extends object>(values: T, classNames?: string[], includeDefaults: boolean = true) {
-  const cachedTagFunctions = getOrPutWrapCache(
+  const cachedTagFunctions = wrapCache.getOrSet(
     values,
     () => (
       classNames
@@ -60,7 +60,7 @@ function createClassTagFunction(tag: string): TagFunction {
 
 export function createClassTagFunctions(classNames: string[], includeDefaults:boolean = true) {
 
-  return getOrPutClassesCache(classNames, createClassTagFunctionsImpl);
+  return classesCache.getOrSet(classNames, createClassTagFunctionsImpl);
 
   function createClassTagFunctionsImpl() {
     const classTagFunctions = toRecord(
@@ -122,4 +122,9 @@ export function createElementTagFunctions(tags: string[]) {
     identity,
     tag => createElementTagFunction(tag, elementDefaultAttributes[tag])
   );
+}
+
+export function clearCaches() {
+  classesCache.clear();
+  wrapCache.clear();
 }

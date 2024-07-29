@@ -1,6 +1,6 @@
 {
   "name": "intl-messageformat-html",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "HTML tag functions for use with intl-messageformat",
   "main": "dist/index.js",
   "scripts": {
@@ -46,6 +46,6 @@
     "typescript": "^5.5.3"
   },
   "dependencies": {
-    "utikity": "^1.8.2"
+    "utikity": "^2.0.0"
   }
 }

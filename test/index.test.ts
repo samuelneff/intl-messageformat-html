@@ -1,5 +1,5 @@
-import { clearBothCaches } from '../src/cache';
 import {
+  clearCaches,
   createAttributeTagFunctions,
   createClassTagFunctions,
   createElementTagFunctions,
@@ -8,7 +8,7 @@ import {
  } from '../src/index';
 
 beforeEach(() => {
-  clearBothCaches();
+  clearCaches();
 });
 
 describe('createAttributeTagFunctions', () => {
