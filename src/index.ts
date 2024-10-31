@@ -1,7 +1,6 @@
 import {
   createEntityEncodeProxy,
   createMultiProxy,
-  isEmpty,
   MapCache,
   toRecord,
 } from 'utikity';
@@ -27,8 +26,8 @@ const htmlAttributeTagFunctions = createAttributeTagFunctions(htmlAttributes);
 const svgElementTagFunctions = createElementTagFunctions(svgElements);
 const svgAttributTagFunctions = createAttributeTagFunctions(svgAttributes);
 
-const classesCache = new MapCache<string[], TagFunctions>();
-const wrapCache = new MapCache<object, TagFunctions>();
+let classesCache: MapCache<string[], TagFunctions>;
+let wrapCache: MapCache<object, TagFunctions>;
 
 export const tagFunctions: TagFunctions = {
   // there is some overlap but the implementations are the same so no worries about the overrides
@@ -39,6 +38,10 @@ export const tagFunctions: TagFunctions = {
 };
 
 export function wrapValues<T extends object>(values: T, classNames?: string[], includeDefaults: boolean = true) {
+  if (wrapCache === undefined) {
+    wrapCache = new MapCache<object, TagFunctions>();
+  }
+
   const cachedTagFunctions = wrapCache.getOrSet(
     values,
     () => (
@@ -60,6 +63,10 @@ function createClassTagFunction(tag: string): TagFunction {
 }
 
 export function createClassTagFunctions(classNames: string[], includeDefaults:boolean = true) {
+
+  if (classesCache === undefined) {
+    classesCache = new MapCache<string[], TagFunctions>();
+  }
 
   return classesCache.getOrSet(classNames, createClassTagFunctionsImpl);
 
@@ -88,10 +95,12 @@ function createAttributeTagFunction(tag: string): TagFunction {
 }
 
 export function createAttributeTagFunctions(tags: string[]) {
-  return toRecord(
-    tags,
-    identity,
-    createAttributeTagFunction,
+  return tags.reduce(
+    (rec, tag) => {
+      rec[ tag ] = createAttributeTagFunction(tag);
+      return rec;
+    },
+    {} as Record<string, TagFunction>
   );
 }
 
@@ -118,16 +127,16 @@ function createElementTagFunction(tag: string, defaultAttributes?: Record<string
 }
 
 export function createElementTagFunctions(tags: string[]) {
-  return isEmpty(tags)
-    ? {}
-    : toRecord(
-      tags,
-      identity,
-      tag => createElementTagFunction(tag, elementDefaultAttributes[ tag ])
-    );
+  return tags.reduce(
+    (rec, tag) => {
+      rec[ tag ] = createElementTagFunction(tag, elementDefaultAttributes[ tag ]);
+      return rec;
+    },
+    {} as Record<string, TagFunction>
+  );
 }
 
 export function clearCaches() {
-  classesCache.clear();
-  wrapCache.clear();
+  classesCache?.clear();
+  wrapCache?.clear();
 }
