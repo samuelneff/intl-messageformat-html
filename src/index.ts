@@ -1,6 +1,7 @@
 import {
   createEntityEncodeProxy,
   createMultiProxy,
+  isEmpty,
   MapCache,
   toRecord,
 } from 'utikity';
@@ -117,11 +118,13 @@ function createElementTagFunction(tag: string, defaultAttributes?: Record<string
 }
 
 export function createElementTagFunctions(tags: string[]) {
-  return toRecord(
-    tags,
-    identity,
-    tag => createElementTagFunction(tag, elementDefaultAttributes[tag])
-  );
+  return isEmpty(tags)
+    ? {}
+    : toRecord(
+      tags,
+      identity,
+      tag => createElementTagFunction(tag, elementDefaultAttributes[ tag ])
+    );
 }
 
 export function clearCaches() {
